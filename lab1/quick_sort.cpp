@@ -18,11 +18,11 @@ void insertion_sort(It first, It last) {
 }
 
 template <typename It, typename T>
-std::pair<It, It> partition3(It first, It last, const T& base) {
+std::pair<It, It> partition3(It first, It last, T pivot) {
     for (It middle = first; middle != last; ) {
-        if (*middle < base) {
+        if (*middle < pivot) {
             std::iter_swap(middle++, first++);
-        } else if (base < *middle) {
+        } else if (pivot < *middle) {
             std::iter_swap(middle, --last);
         } else {
             ++middle;
@@ -33,12 +33,11 @@ std::pair<It, It> partition3(It first, It last, const T& base) {
 }
 
 template <typename It>
-inline static auto base_select(It first, [[maybe_unused]] It last) {
+inline static auto pivot_select(It first, [[maybe_unused]] It last) {
 #ifdef SELECT3
     auto middle = std::next(first, std::distance(first, last) / 2);
-    --last;
     return std::max(std::min(*first, *middle),
-                    std::min(std::max(*first, *middle), *last));
+                    std::min(std::max(*first, *middle), *std::prev(last)));
 #else
     return *first;
 #endif
@@ -50,8 +49,8 @@ void quick_almost_sort(It first, It last) {
         return;
     }
 
-    auto base = base_select(first, last);
-    auto [left, right] = partition3(first, last, base);
+    auto pivot = pivot_select(first, last);
+    auto [left, right] = partition3(first, last, pivot);
     quick_almost_sort(first, left);
     quick_almost_sort(right, last);
 }
